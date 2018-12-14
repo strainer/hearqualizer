@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <title>Equalize Loudness.</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="keywords" content="audio, calibrate, equalizer, hearing">
+  <meta name="description" content="A tool for calibrating graphic equalizer">
+
+  <link rel="stylesheet" href="stylesheets/picnic.css">
+  <link rel="icon" href="web/img/basket.png" type="image/png">
+  
+  <script src='dep/Fdrandom.js'></script>
+  <script src="dep/mithril.js"></script>
+  <script src='playtones.js'></script>
+  <script src='dep/levelsliderm.js'></script>
+  <script src='mithcoms.js'></script>
+  <script src='storage.js'></script>
+
+<style>
+body {
+  font-family:"Helvetica Neue", Helvetica, Arial, sans-serif;
+  background-color: #a7a7f7;  
+  /*font-size: 14px;*/
+  color: #000;
+  /*background-color: #ccc;*/
+}
+
+a.gitbuttons {
+	-webkit-font-smoothing: antialiased;
+	background: url(../images/arrow-down.png) no-repeat;
+	font-weight: normal;
+	text-shadow: rgba(0, 0, 0, 0.4) 0 -1px 0;
+	padding: 2px 2px 2px 22px;
+	height: 30px;
+}
+
+a.github {
+	background: url(../images/octocat-small.png) no-repeat 1px;
+}
+
+a.gitbuttons:hover {
+	color: #fff;
+	text-decoration: none;
+}
+
+
+/* Header */
+
+header {
+	overflow: auto;
+	background-color: #171757;
+	color: #FDFDFB;
+  width:100%;
+	border: 7px solid #02b;
+	padding: 0px 0px 0px 0px;
+	margin: 0px 0px;
+	-webkit-font-smoothing: antialiased;
+}
+
+p.header {
+	clear:both;
+  font-size: 16px;
+}
+
+h1.header {
+	font-family: sans-serif;
+	font-size: 30px;
+	font-weight: 300;
+	line-height: 1.3em;
+	border-bottom: none;
+	margin-top: 0;
+  padding:0px 40px;
+}
+
+.padder {
+	overflow: auto;
+	padding:0.5em 0.5em 0.35em 0.65em;
+}
+
+.sdedc {
+	border: 1px solid #f2b;
+}
+
+.place-qw {
+	margin:1.0em auto 0.5em auto; 
+	width:80%; 
+}
+
+</style>
+</head>
+
+<body>
+  
+<header>
+  <div class="padder">
+  <div style="float:left;">
+  <h2 style="padding: 0 0 0 0; color:#fe8;">Loudness equalizer tool</h2>
+  <p class="stack" style=" color:#f9c;">These tones should all play with equal loudness</p>
+  </div>
+  <a style="float:right; margin:0 0" class="button small" href="https://github.com/strainer/hearqualizer">Src&nbsp;On&nbsp;GitHub</a>
+  </div>
+</header>
+    
+
+<div id="eqconfig" style="text-align:center; margin:0px auto; width:40em;"></div>
+<div id="equalizer" style="text-align:center; margin:0px auto; width:40em;"></div>
+      
+   
+</body>
+</html>
+
+<script src="arch.js"></script>
