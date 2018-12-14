@@ -7,6 +7,12 @@ function makarr(n,f,th){
 
 var EQspec
 
+function setglobs(){
+  EQspec=mdleqlzr(EQspec)
+  frqs = EQspec.frqs
+  pwrs = EQspec.pwrs
+}
+
 function mdleqlzr(p,r){
   
   var len=p.nfreq       //number frequencies

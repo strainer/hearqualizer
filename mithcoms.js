@@ -2,6 +2,8 @@ function Eqconfiger(vnode) {
 
   var EQspec=vnode.attrs.mdl
   
+  //~ var setglobs =vnode.attrs.setglobs
+  
   var cafreq=hztostr(EQspec.afreq)
      ,cefreq=hztostr(EQspec.efreq)
      ,cbands=bntostr(EQspec.nfreq)
@@ -22,14 +24,11 @@ function Eqconfiger(vnode) {
 
     d = cbands
     while(d.length && (!isFinite(d.substr(-1))) ) d=d.slice(0,-1)
-    d=d*1;d=d<1?1:d>15?15:d
+    d=d*1;d=d<1?1:d>35?35:d
     if(isFinite(d)){ EQspec.nfreq = d }
     cbands=bntostr(EQspec.nfreq)
     setglobs()
-    
-    m.mount(equalel, {
-      view: function () { return m( mc_eqlzr, {mdl:EQspec} ) }
-    })
+    mount_graphic_eq()
   }
 
   function bntostr(c){ return c+" Bands" }
