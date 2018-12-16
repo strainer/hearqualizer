@@ -112,11 +112,11 @@ function bellbutton(vnode){
    ,view: function(vnode) {
       return m("svg[viewBox='0 0 100 100']", 
       { onclick:onclick,
-        style:"width:1em; height:1em;"
+        style:"width:1em; height:1em; padding:3px 0px 0px 0px;"
       },
       [ 
-      m("circle",{cx:"50%",cy:"50%",r:"39%",stroke:"#eee",fill:"#02b"}) ,
-      m("polygon[points=25,10 25,90 95,50]",{stroke:"#eee",fill:"#e7b"})
+      m("circle",{cx:"50%",cy:"50%",r:"45%",stroke:"#eee",fill:"#02b"}) ,
+      m("polygon[points=26,10 26,90 95,50]",{stroke:"#eee",fill:"#5fe"})
       
        ]
       )
@@ -174,7 +174,7 @@ return m("div",m("form",{onsubmit:submit},
           //~ m("label",
           m("input",
           {
-          style:"padding:0.1em 0.1em; background-color:#59f; border-color:#0df; text-align:center" ,
+          style:"padding:0em; background-color:#59f; border-color:#0df; text-align:center" ,
           oninput: m.withAttr("value", v=>{frqs[ti]=v}) ,
           value: frqs[ti]
           }
@@ -191,7 +191,7 @@ return m("div",m("form",{onsubmit:submit},
       ,makarr(nb, function(ti){ 
         
         return m("td", 
-          { className: "frqbell",style:"margin:auto; text-align:center;"},
+          { className: "frqbell",style:"padding:0em; margin:auto; text-align:center;"},
           m( bellbutton, {ky:ti} )
          )//m
         },this
