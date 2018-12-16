@@ -101,8 +101,17 @@ var cmin=0,cmax=100,volboost=0.01
 var slength="2.75em",swide="20em"
 
 function playztone(key){
-  console.log("playing key",key,"frq",frqs[key],"pwr",pwrs[key])
+  console.log("playang key",key,"frq",frqs[key],"pwr",pwrs[key])
   playonetrill(frqs[key],volboost*pwrs[key]/100)
+  
+  var ccl=arch.bells[key].classList
+  if(ccl.contains("pulse")){
+    ccl.remove("pulse")
+    ccl.add("pulse2")
+  }else{
+    ccl.remove("pulse2")
+    ccl.add("pulse")
+  }
 }
 
 //~ console.log(ceqmdl)

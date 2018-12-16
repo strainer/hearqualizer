@@ -1,3 +1,31 @@
+
+@keyframes pulse {
+  from { transform: scale3d(1.05, 1.05, 1.05); }
+  25% { transform: scale3d(1.2, 1.2, 1.2); }
+  50% { transform: scale3d(1.03, 1.03, 1.03); }
+  75% { transform: scale3d(1.2, 1.2, 1.2); }
+  to { transform: scale3d(1, 1, 1); }
+}
+@keyframes pulse2 {
+  from { transform: scale3d(1.05, 1.05, 1.05); }
+  25% { transform: scale3d(1.2, 1.2, 1.2); }
+  50% { transform: scale3d(1.03, 1.03, 1.03); }
+  75% { transform: scale3d(1.2, 1.2, 1.2); }
+  to { transform: scale3d(1, 1, 1); }
+}
+
+.pulse {
+  animation-name: pulse;
+  animation-duration: 0.2s;
+  animation-iteration-count: 5;
+}
+.pulse2 {
+  animation-name: pulse2;
+  animation-duration: 0.2s;
+  animation-iteration-count: 5;
+}
+
+
 @charset "UTF-8";
 /**
  * 1. Set default font family to sans-serif.
@@ -628,7 +656,7 @@ th {
   background-color: #aaa; }
 
 tr:nth-child(even) {
-  background: rgba(0, 0, 0, 0.05); }
+  background: rgba(255, 255, 195, 0.3); }
 
 .flex {
   display: -ms-flexbox;

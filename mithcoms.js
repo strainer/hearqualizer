@@ -108,7 +108,8 @@ function bellbutton(vnode){
   }
   
   return{
-    view: function(vnode) {
+    oncreate:(vnode) =>{ arch.bells[ky]=vnode.dom }
+   ,view: function(vnode) {
       return m("svg[viewBox='0 0 100 100']", 
       { onclick:onclick,
         style:"width:1em; height:1em;"
@@ -189,7 +190,8 @@ return m("div",m("form",{onsubmit:submit},
       m("tr"
       ,makarr(nb, function(ti){ 
         
-        return m("td", {className: "frqbell",style:"margin:auto; text-align:center;"},
+        return m("td", 
+          { className: "frqbell",style:"margin:auto; text-align:center;"},
           m( bellbutton, {ky:ti} )
          )//m
         },this
