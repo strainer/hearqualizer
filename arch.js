@@ -1,3 +1,7 @@
+arch={
+  bells:[]
+}
+
 //halp
 function makarr(n,f,th){
   var A= new Array(n) ; if(th) f=f.bind(th)
@@ -45,10 +49,13 @@ function mdleqlzr(p,r){
     ,linear:p.linear
     ,frqs:frq
     ,pwrs:pwr
+    ,trillpow:p.trillpow
+    ,trilltime:p.trilltime
+    ,trillfreq:p.trillfreq
   }
 }
 
-function fixEQ(EQspec){
+function fixEQ(){
   
   if(!EQspec){
     EQspec = mdleqlzr({
@@ -58,8 +65,14 @@ function fixEQ(EQspec){
      ,linear:false
     },{} )
   }
+  
+  if(!EQspec.trilltime){
+    EQspec.trillfreq=7.5;
+    EQspec.trillpow=0.1;
+    EQspec.trilltime=1;
+  }
+  
   console.log(EQspec)
-  return EQspec
 }
 
 var stowed=false
@@ -92,7 +105,7 @@ function readstored_eqconf(){
   }
 }
 
-EQspec= fixEQ( readstored_eqconf() ) 
+fixEQ( readstored_eqconf() ) 
 
 frqs = EQspec.frqs
 pwrs = EQspec.pwrs
@@ -102,7 +115,7 @@ var slength="2.75em",swide="20em"
 
 function playztone(key){
   console.log("playang key",key,"frq",frqs[key],"pwr",pwrs[key])
-  playonetrill(frqs[key],volboost*pwrs[key]/100)
+  playonetrill(frqs[key],volboost*pwrs[key]/100, EQspec.trillfreq , EQspec.trillpow , EQspec.trilltime)
   
   var ccl=arch.bells[key].classList
   if(ccl.contains("pulse")){
@@ -118,6 +131,7 @@ function playztone(key){
 
 eqconfigel=document.getElementById("eqconfig")
 equalel=document.getElementById("equalizer")
+trillconfel=document.getElementById("trillconfig")
 
 mount_graphic_eq(document.getElementById("equalizer"))
 
@@ -128,5 +142,9 @@ function mount_graphic_eq(e){
 
   m.mount(equalel, {
     view: function () { return m( mc_eqlzr, {mdl:EQspec} ) }
+  })
+  
+  m.mount(trillconfel, {
+    view: function () { return m( Trillconfiger, {mdl:EQspec} ) }
   }) 
 }

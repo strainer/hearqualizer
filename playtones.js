@@ -191,7 +191,7 @@ function nsqrt(c){
   return -Math.sqrt(Math.abs(c))
 }
 
-function makepcmtrill(freqa,freqb,freqx,secs,ampl,rate,Ao){
+function makepcmtrill( {freqa,freqb,freqx,secs,ampl,rate,Ao} ){
   
   var sams=(secs*rate)>>0
   
@@ -307,18 +307,19 @@ console.log(softlimitar(z,0.8,1))
 
 var trillbuffer=[]
 
-function playonetrill(freq, pow){
+function playonetrill(freq, pow, trillfreq , trillpow , trilltime){
   
   var freqa,freqb,freqx,secs,ampl,rate
 
-  var pcm = makepcmtrill(
-    freqa= freq*0.90
-   ,freqb= freq*1.11
-   ,freqx= 7.5
-   ,secs = 1.1
-   ,ampl = pow
-   ,rate = 48000
-  )
+  var pcm = makepcmtrill( {
+    freqa: freq/(1+trillpow)  //0.9
+   ,freqb: freq*(1+trillpow)  //1.11
+   ,freqx: trillfreq //7.5
+   ,secs : trilltime //1.1
+   ,ampl : pow
+   ,rate : 48000
+   ,Ao : trillbuffer
+  } )
   
   var ctx = getaudio()
   var buf = makebuffer(ctx,pcm)

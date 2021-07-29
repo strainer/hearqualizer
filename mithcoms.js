@@ -30,20 +30,6 @@ function Eqconfiger(vnode) {
     setglobs()
     mount_graphic_eq()
   }
-
-  function bntostr(c){ return c+" Bands" }
-  function hztostr(c){
-    if(c>1000){ c=Math.round(c) ; c=c/1000+"KHz" }else{ c+="Hz" }
-    return c 
-  }
-  
-  function strtohz(c){
-    c=c.toLowerCase()
-    if(c.substr(-1)==="z") c=c.slice(0,-1)
-    if(c.substr(-1)==="h") c=c.slice(0,-1)
-    if(c.substr(-1)==="k"){ c=c.slice(0,-1);c*=1000 }
-    return c*1
-  }
   
   function chkbx(c){
     EQspec.linear=c
@@ -54,47 +40,175 @@ function Eqconfiger(vnode) {
   return {
     view: function() {
 
-      return m("form.place-qw",{onsubmit:submit},[
+      return m("form.place-qw",{onsubmit:submit}, [
       
-      m("fieldset.flex.four",[
-       m("input", {
-         type:"submit",tabindex:"-1"
-        ,style:"position: absolute; left: -9999px; width: 1px; height: 1px;"
-        ,onsubmit:submit
-       }
-       )
-       ,
-       m("label",m("input",
-       {
-       oninput: m.withAttr("value", v=>{cafreq=v}),
-       value: cafreq
-       }
-       ))
-       ,
-       m("label",m("input",
-       {
-       oninput: m.withAttr("value", v=>{cefreq=v}),
-       value: cefreq
-       }
-       ))
-       ,
-       m("label",m("input",
-       {
-       oninput: m.withAttr("value", v=>{cbands=v}),
-       value: cbands
-       }
-       ))
-      ,m("label",{style:"padding:0.3em 0.5em;"},[
-        m("input[type=checkbox]",{
-          onclick: m.withAttr("checked", chkbx)
-         ,checked:EQspec.linear
-          })
-       ,m("span.checkable","Linear")
-       ]) 
-      ])
-     ]) 
-    }
+      m("fieldset.flex.four", [
+        m("input", 
+        {
+          type:"submit",tabindex:"-1",
+          style:"position: absolute; left: -9999px; width: 1px; height: 1px;",
+          onsubmit:submit
+        }
+        )
+        ,
+        m("label", 
+        [
+        m("input",
+        {
+          oninput: m.withAttr("value", v=>{cafreq=v}),
+          value: cafreq
+        }
+        )
+        ,m("div", {style:{float:"right",position:"relative",top:"-1.8em",left:"-0.5em",color:"grey"}}, "to")
+        ]
+        )
+        ,
+        m("label", m("input",
+        {
+          oninput: m.withAttr("value", v=>{cefreq=v}),
+          value: cefreq
+        }
+        ))
+        ,
+        m("label", m("input",
+        {
+          oninput: m.withAttr("value", v=>{cbands=v}),
+          value: cbands
+        }
+        ))
+        ,
+        m("label",{style:"padding:0.3em 0.5em;"}, [
+          m("input[type=checkbox]",
+          {
+            onclick: m.withAttr("checked", chkbx),
+            checked:EQspec.linear
+          }
+          )
+         ,m("span.checkable","Linear")
+        ]) 
+      ]) //feildset
+     ])  //form
+    }    //view
+  }      //rtn obj
+}
+
+
+function bntostr(c){ return c+" Bands" }
+function hztostr(c){
+  if(c>1000){ c=Math.round(c) ; c=c/1000+"KHz" }else{ c+="Hz" }
+  return c 
+}
+
+function strtohz(c){
+  c=c.toLowerCase()
+  if(c.substr(-1)==="z") c=c.slice(0,-1)
+  if(c.substr(-1)==="h") c=c.slice(0,-1)
+  if(c.substr(-1)==="k"){ c=c.slice(0,-1);c*=1000 }
+  return c*1
+}
+
+function percenttostr(c){
+  return c*100 +" % "; 
+}
+
+function strtopercent(c){
+  c=roundsig( stripnan(c) , 1000 )
+  return c*0.01
+}
+
+function secstostr(c){
+  c=stripnan(c)
+  return c + "s"
+}
+
+function strtosecs(c){
+  c=roundsig( stripnan(c) , 1000 )
+  return c	
+}
+
+function stripnan(c){
+  c=""+c
+  while(c.substr(-1)&&isNaN(parseFloat(c.substr(-1)))) c=c.slice(0,-1)
+  return 1*c
+}
+
+function roundsig(c,d){ d=d||1e15; return Math.floor(c*d+0.5)/d } 
+
+function Trillconfiger(vnode) {
+
+  var Eqspec=vnode.attrs.mdl
+  
+  //~ var setglobs =vnode.attrs.setglobs
+  
+  var trillfreq=hztostr(EQspec.trillfreq)
+     ,trillpow=percenttostr(EQspec.trillpow)
+     ,trilltime=secstostr(EQspec.trilltime)
+     
+  function submit(event){
+    if(event)event.preventDefault()
+    
+    var d = strtohz(trillfreq)
+    d=d<0?0:d>10000?10000:d
+    if(isFinite(d)){ EQspec.trillfreq = d }
+    
+    d= strtopercent(trillpow)
+    d=d<0?0:d>100?100:d 
+    if(isFinite(d)){ EQspec.trillpow = d }
+
+    d= strtosecs(trilltime)
+    d=d<0.1?0.1:d>300?300:d 
+    if(isFinite(d)){ EQspec.trilltime = d }
+    
+    trillfreq=hztostr(EQspec.trillfreq)
+    trillpow=percenttostr(EQspec.trillpow)
+    trilltime=secstostr(EQspec.trilltime)
+    
+    alert(EQspec.trillfreq+" "+EQspec.trillpow+" "+EQspec.trilltime); 
+    setglobs()
   }
+
+   
+  return {
+    view: function() {
+
+      return m("form.place-qw",{onsubmit:submit}, [
+      
+      m("fieldset.flex.three", [
+        m("input", 
+        {
+          type:"submit",tabindex:"-1",
+          style:"position: absolute; left: -9999px; width: 1px; height: 1px;",
+          onsubmit:submit
+        }
+        )
+        ,
+        m("label", 
+        [
+        m("input",
+        {
+          oninput: m.withAttr("value", v=>{ trillfreq=v }), value: trillfreq
+        }
+        )
+        ,m("div", {style:{float:"right",position:"relative",top:"-1.8em",left:"-0.5em",color:"grey"}}, "to")
+        ]
+        )
+        ,
+        m("label", m("input",
+        {
+          oninput: m.withAttr("value", v=>{trillpow=v}),value: trillpow
+        }
+        )) 
+
+        ,
+        m("label", m("input",
+        {
+          oninput: m.withAttr("value", v=>{trilltime=v}),value: trilltime
+        }
+        )) 
+      ]) //feildset
+     ])  //form
+    }    //view
+  }      //rtn obj
 }
 
 function bellbutton(vnode){
@@ -110,13 +224,13 @@ function bellbutton(vnode){
   return{
     oncreate:(vnode) =>{ arch.bells[ky]=vnode.dom }
    ,view: function(vnode) {
-      return m("svg[viewBox='0 0 100 100']", 
+      return m("svg[viewBox='0 0 133 133']", 
       { onclick:onclick,
         style:"width:1em; height:1em; padding:3px 0px 0px 0px;"
       },
       [ 
       m("circle",{cx:"50%",cy:"50%",r:"45%",stroke:"#eee",fill:"#02b"}) ,
-      m("polygon[points=26,10 26,90 95,50]",{stroke:"#eee",fill:"#5fe"})
+      m("polygon[points=40,25 40,105 110,65]",{stroke:"#eee",fill:"#5fe"})
       
        ]
       )
@@ -168,9 +282,9 @@ return m("div",m("form",{onsubmit:submit},
       
       //row of inputs
       m("tr",
-       makarr(nb, function(ti){ 
+       Array.from({ length:nb} , function(v,ti){ 
         
-        return m("td", {className: "inpoo"},
+        return m("td", {className: "frq_input_td"},
           //~ m("label",
           m("input",
           {
@@ -182,8 +296,8 @@ return m("div",m("form",{onsubmit:submit},
           //~ )
           
          )//m
-        },this
-       )//makarr 
+        }
+       )//Array.from 
       ), 
       
       //row of bells
