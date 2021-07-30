@@ -10,8 +10,6 @@
   <link rel="stylesheet" href="stylesheets/picnic.css">
   <link rel="icon" href="web/img/basket.png" type="image/png">
   
-  <script src='inits.js'></script>
-  <script src='dep/Fdrandom.js'></script>
   <script src="dep/mithril.js"></script>
   <script src='dep/levelsliderm.js'></script>
 
@@ -81,8 +79,13 @@ h1.header {
 }
 
 .place-qw {
-	margin:1.0em auto 0em auto; 
-	width:80%; 
+	margin:0.75em auto 0em auto; 
+	width:85%; 
+}
+
+.place-qx {
+	margin:0em auto 0em auto; 
+	width:85%; 
 }
 
 </style>
@@ -93,7 +96,7 @@ h1.header {
 <header>
   <div class="padder">
   <div style="float:left;">
-  <h2 style="padding: 0 0 0 0; color:#fe8;">Loudness Equalizer Tool</h2>
+  <h2 style="padding: 0 0 0 0; color:#fe8;">Loudness Equalizer Toy</h2>
   <p class="stack" style=" color:#f9c;">These tones should all play with equal loudness</p>
   </div>
   <a style="float:right; margin:0 0" class="button small" href="https://github.com/strainer/hearqualizer">Src&nbsp;On&nbsp;GitHub</a>
@@ -102,8 +105,8 @@ h1.header {
     
 
 <div id="eqconfig" style="text-align:center; margin:0px auto; width:90%; padding:0;"></div>
-<div id="equalizer" style="text-align:center; margin:0px auto; width:90%; padding:0;"></div>
 <div id="trillconfig" style="text-align:center; margin:0px auto; width:90%; padding:0;"></div>
+<div id="equalizer" style="text-align:center; margin:0px auto; width:90%; padding:0;"></div>
       
    
 </body>

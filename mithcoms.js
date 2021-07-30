@@ -42,24 +42,25 @@ function Eqconfiger(vnode) {
 
       return m("form.place-qw",{onsubmit:submit}, [
       
-      m("fieldset.flex.four", [
+      m("fieldset.flex.four", {style:"padding: 0em;"},  [
         m("input", 
         {
           type:"submit",tabindex:"-1",
-          style:"position: absolute; left: -9999px; width: 1px; height: 1px;",
+          style:{display:"none"},
           onsubmit:submit
         }
         )
         ,
-        m("label", 
+        m("label", {style:{position:"relative"}} ,
         [
+        m("div", {style:{position:"absolute",right:"0.7em",top:"0.3em",color:"#d5a"}}, "to")
+        ,
         m("input",
         {
           oninput: m.withAttr("value", v=>{cafreq=v}),
           value: cafreq
         }
         )
-        ,m("div", {style:{float:"right",position:"relative",top:"-1.8em",left:"-0.5em",color:"grey"}}, "to")
         ]
         )
         ,
@@ -77,7 +78,7 @@ function Eqconfiger(vnode) {
         }
         ))
         ,
-        m("label",{style:"padding:0.3em 0.5em;"}, [
+        m("label",{style:"padding:0.3em 4em 0.3em 0.5em;"}, [
           m("input[type=checkbox]",
           {
             onclick: m.withAttr("checked", chkbx),
@@ -95,7 +96,7 @@ function Eqconfiger(vnode) {
 
 function bntostr(c){ return c+" Bands" }
 function hztostr(c){
-  if(c>1000){ c=Math.round(c) ; c=c/1000+"KHz" }else{ c+="Hz" }
+  if(c>1000){ c=Math.round(c) ; c=c/1000+" KHz" }else{ c+=" Hz" }
   return c 
 }
 
@@ -108,7 +109,7 @@ function strtohz(c){
 }
 
 function percenttostr(c){
-  return c*100 +" % "; 
+  return c*100 +" %"; 
 }
 
 function strtopercent(c){
@@ -118,7 +119,7 @@ function strtopercent(c){
 
 function secstostr(c){
   c=stripnan(c)
-  return c + "s"
+  return c + " s"
 }
 
 function strtosecs(c){
@@ -163,7 +164,6 @@ function Trillconfiger(vnode) {
     trillpow=percenttostr(EQspec.trillpow)
     trilltime=secstostr(EQspec.trilltime)
     
-    alert(EQspec.trillfreq+" "+EQspec.trillpow+" "+EQspec.trilltime); 
     setglobs()
   }
 
@@ -171,9 +171,9 @@ function Trillconfiger(vnode) {
   return {
     view: function() {
 
-      return m("form.place-qw",{onsubmit:submit}, [
+      return m("form.place-qx",{onsubmit:submit},[
       
-      m("fieldset.flex.three", [
+      m("fieldset.flex.four", {style:"padding-bottom: 0.1em;"}, [
         m("input", 
         {
           type:"submit",tabindex:"-1",
@@ -182,29 +182,41 @@ function Trillconfiger(vnode) {
         }
         )
         ,
-        m("label", 
+        m("label", {style:{position:"relative"}} ,
         [
+        m("div", {style:{position:"absolute",right:"0.7em",top:"0.3em",color:"#d5a"}}, "...Trill")
+        ,
         m("input",
         {
           oninput: m.withAttr("value", v=>{ trillfreq=v }), value: trillfreq
         }
         )
-        ,m("div", {style:{float:"right",position:"relative",top:"-1.8em",left:"-0.5em",color:"grey"}}, "to")
         ]
         )
         ,
-        m("label", m("input",
-        {
-          oninput: m.withAttr("value", v=>{trillpow=v}),value: trillpow
-        }
-        )) 
+        m("label", {style:{position:"relative"}} , 
+        [
+        m("div", {style:{position:"absolute",right:"0.7em",top:"0.3em",color:"#d5a"}}, "...Power")
+        ,
+        m("input",
+        { oninput: m.withAttr("value", v=>{trillpow=v}),value: trillpow }
+        )
+        ]
+        
+        ) 
 
         ,
-        m("label", m("input",
+        m("label", {style:{position:"relative"}} ,
+        [
+        m("div", {style:{position:"absolute",right:"0.7em",top:"0.3em",color:"#d5a"}}, "...Duration")
+        ,
+        m("input",
         {
           oninput: m.withAttr("value", v=>{trilltime=v}),value: trilltime
         }
-        )) 
+        )
+        ]
+        ) 
       ]) //feildset
      ])  //form
     }    //view
@@ -257,10 +269,10 @@ function mc_eqlzr(vnode) { //attrs ceqmdl
    ,min:cmin ,max:cmax ,steps:40
    ,elstyle:{ border:"0px dashed black",width:slength,height:swide,margin:"auto" }
    ,horizontal:false
-   ,knobsize:"4.9%"
+   ,knobsize:"4.8%"
    ,knobcolor:"#02b"
    ,strokecolor:"dimgrey"
-   ,knobstrokecolor:"#171757"
+   ,knobstrokecolor:"#370767"
    ,strokewidth:"0.8%"
    ,knobstrokewidth:"1.2%"
   }

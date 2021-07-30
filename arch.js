@@ -111,7 +111,7 @@ frqs = EQspec.frqs
 pwrs = EQspec.pwrs
 
 var cmin=0,cmax=100,volboost=0.01
-var slength="2.75em",swide="20em"
+var slength="2.75em",swide="16em"
 
 function playztone(key){
   console.log("playang key",key,"frq",frqs[key],"pwr",pwrs[key])
