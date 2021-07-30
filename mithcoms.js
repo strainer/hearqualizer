@@ -12,19 +12,19 @@ function Eqconfiger(vnode) {
   function submit(event){
     if(event)event.preventDefault()
     
-    var d = strtohz(cafreq)
+    var d = roundsig(strtohz(cafreq),1000)
     d=d<20?20:d>24000?24000:d
     if(isFinite(d)){ EQspec.afreq = d }
     cafreq = hztostr(d)
     
-    d = strtohz(cefreq)
+    d = roundsig(strtohz(cefreq),1000)
     d=d<20?20:d>24000?24000:d
     if(isFinite(d)){ EQspec.efreq = d }
     cefreq = hztostr(d)
 
     d = cbands
     while(d.length && (!isFinite(d.substr(-1))) ) d=d.slice(0,-1)
-    d=d*1;d=d<1?1:d>35?35:d
+    d=Math.floor(d);d=d<1?1:d>35?35:d
     if(isFinite(d)){ EQspec.nfreq = d }
     cbands=bntostr(EQspec.nfreq)
     setglobs()
