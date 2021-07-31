@@ -221,7 +221,7 @@ function makepcmtrill( {freqa,freqb,freqx,secs,ampl,rate,Ao} ){
   
   var pi=2*Math.PI
   var thet=0,phi=Math.PI/6
-  console.log( "freq" , rate/wvlb ,"boost", pwrboost(rate/wvlb) )
+  console.log( "freq" , rate/wvlb ,"boost", pwrboost(rate/wvlb), "ampl" ,ampl )
   for(var i=0; i<sams; i++){
     
     var tx=Math.sin( (phi+=pi/wvlx) )

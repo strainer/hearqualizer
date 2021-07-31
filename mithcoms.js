@@ -164,7 +164,7 @@ function Trillconfiger(vnode) {
     trillpow=percenttostr(EQspec.trillpow)
     trilltime=secstostr(EQspec.trilltime)
     
-    setglobs()
+    //setglobs()
   }
 
    
@@ -262,8 +262,8 @@ function mc_eqlzr(vnode) { //attrs ceqmdl
   var nb =pwrs.length
   
   var slider_def ={ 
-    stateobj:pwrs 
-   ,frqs:ceqmdl.frq 
+    stateobj:ceqmdl.pwrs 
+   ,frqs:ceqmdl.frqs
    ,statekey:0
    ,onclickextra:playztone 
    ,min:cmin ,max:cmax ,steps:40
@@ -329,7 +329,7 @@ return m("div",m("form",{onsubmit:submit},
             
         makarr(nb, function(i){ //makarr - make array of len
           var adef = JSON.parse(JSON.stringify(slider_def))
-          adef.stateobj=pwrs
+          adef.stateobj=ceqmdl.pwrs
           adef.statekey=i //hacky clone as defs are not read in order
           adef.onclickextra=playztone
           return m("td", {className: "frqcntrl",style:"margin:auto; text-align:center"},
