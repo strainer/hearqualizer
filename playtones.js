@@ -119,28 +119,39 @@ function doelc(){
 
 var b_key_frq=0
 
-var ampfbase = 3.1622776601683795 //amplitude_factor_base
-function dbtoampfac(x){ return Math.pow(3.1622776601683795,x/10) }
+var ampfbase = Math.sqrt(10) //3.162277660 amplitude_factor_base
+function dbtoampfac(x){ return Math.pow(3.16227766,x/10) }
 
 function pwrboost(cf){
   
   var j=elc.length-1
-  if(cf>=elc[j].hz) return b_val_pwr=elc[j].vd
+  var bst =-0
   
-  if(elc[b_key_frq].hz<=cf&&elc[b_key_frq+1].hz>cf){
-    return dbtoampfac(interpo(elc,b_key_frq,cf))
-  }
+  if(cf>=elc[j].hz) {
+    bst = elc[j].vd 
+  } else {
   
-  while(j!==-1 && cf< elc[j].hz){ j-- } 
-  if(j==-1) return elc[0].vd
+    if(elc[b_key_frq].hz<=cf&&elc[b_key_frq+1].hz>cf){
+      bst = interpo(elc,b_key_frq,cf)
+    } else {
 
-  b_key_frq=j
-   
-  return dbtoampfac(interpo(elc,j,cf)) 
+      while(j!==-1 && cf< elc[j].hz){ j-- } 
+     
+      if(j==-1){ 
+        bst = elc[ b_key_frq=0 ].vd 
+      } else {
+        bst = interpo(elc, b_key_frq=j ,cf)
+      }	
+      
+    }
+  }
+    
+  return Math.pow(3.16227766,bst/10) 
 }
 
 //console.log(pwrform(0.99))
 
+var b_crv = 0;
 function pwrform(c){
   
   var crv=[ //adsr curv, hz is time not hz
@@ -150,16 +161,20 @@ function pwrform(c){
     {hz:0.50, vd:1.0  }, 
     {hz:0.75, vd:0.75 }, 
     {hz:0.90, vd:0.2  }, 
-    {hz:1.0,  vd:0.0  } 
+    {hz:1.0,  vd:0.0  },
+    {hz:2.0,  vd:0.0  } 
   ] 
 
-  var j=crv.length-1
+  if (c<=crv[b_crv].hz&&c>crv[b_crv+1]){
+    return interpo(crv,b_crv,c)
+  }
+  var j=crv.length-2
    
   while(j!==-1 && c< crv[j].hz){ j-- } 
   
   if(j==-1) return crv[0].hz
     
-  return interpo(crv,j,c)
+  return interpo(crv,b_crv=j,c)
 }
 
 
@@ -210,7 +225,7 @@ function makepcmtrill( {freqa,freqb,freqx,secs,ampl,rate,Ao} ){
   for(var i=0; i<sams; i++){
     
     var tx=Math.sin( (phi+=pi/wvlx) )
-    tx=tx*Math.abs(tx)*Math.abs(tx)*Math.sqrt(Math.abs(tx))
+    tx=tx*tx*tx*Math.sqrt(Math.abs(tx))
     //~ tx=nsqrt(nsqrt(tx))
     var wvlc = wvla+(wvld*(1+tx)/2 )
     
