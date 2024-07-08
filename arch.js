@@ -112,10 +112,25 @@ pwrs = EQspec.pwrs
 
 var cmin=0,cmax=100,volboost=0.01
 var slength="2.75em",swide="16em"
+var fdr=Fdrandom.pot()
 
-function playztone(key){
-  console.log("playang key",key,"frq",frqs[key],"pwr",pwrs[key])
-  playonetrill(frqs[key],volboost*pwrs[key]/100, EQspec.trillfreq , EQspec.trillpow , EQspec.trilltime)
+function playrnd(bloop){
+  console.log("quark")
+  var fdr=Fdrandom.repot(bloop)
+  key = Math.floor(fdr.gteat(0,EQspec.nfreq-0.01))
+  let tf= (fdr.gskew()+0.5)*fdr.range(0.1,9.5)
+  let tp= fdr.gnorm(0.001,1.2) ; tp=tp*tp+0.0002
+  let tt= (fdr.gskew()+0.55)*8
+  playztone(key,tf,tp,tt)
+}
+
+function playztone(key,tf,tp,tt){
+  console.log("playang key",key,"frq",frqs[key],"pwr",pwrs[key],tf,tp,tt)
+  
+  tf = (tf===undefined)? EQspec.trillfreq : tf
+  tp = (tp===undefined)? EQspec.trillpow : tp
+  tt = (tt===undefined)? EQspec.trilltime : tt
+  playonetrill(frqs[key],volboost*pwrs[key]/100, tf , tp , tt)
   
   var ccl=arch.bells[key].classList
   if(ccl.contains("pulse")){

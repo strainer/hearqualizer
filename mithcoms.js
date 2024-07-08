@@ -8,7 +8,7 @@ function Eqconfiger(vnode) {
      ,cefreq=hztostr(EQspec.efreq)
      ,cbands=bntostr(EQspec.nfreq)
      ,clinea=EQspec.linear
-     
+
   function submit(event){
     if(event)event.preventDefault()
     
@@ -58,6 +58,7 @@ function Eqconfiger(vnode) {
         m("input",
         {
           oninput: m.withAttr("value", v=>{cafreq=v}),
+          onblur: m.withAttr("value", v=>{cafreq=v}),
           value: cafreq
         }
         )
@@ -67,6 +68,7 @@ function Eqconfiger(vnode) {
         m("label", m("input",
         {
           oninput: m.withAttr("value", v=>{cefreq=v}),
+          onblur: m.withAttr("value", v=>{cefreq=v}),
           value: cefreq
         }
         ))
@@ -144,7 +146,8 @@ function Trillconfiger(vnode) {
   var trillfreq=hztostr(EQspec.trillfreq)
      ,trillpow=percenttostr(EQspec.trillpow)
      ,trilltime=secstostr(EQspec.trilltime)
-     
+     ,bloop=""
+
   function submit(event){
     if(event)event.preventDefault()
     
@@ -188,7 +191,9 @@ function Trillconfiger(vnode) {
         ,
         m("input",
         {
-          oninput: m.withAttr("value", v=>{ trillfreq=v }), value: trillfreq
+          oninput: m.withAttr("value", v=>{ trillfreq=v }), 
+          onblur: m.withAttr("value", v=>{ trillfreq=v ; submit()}), 
+          value: trillfreq
         }
         )
         ]
@@ -199,7 +204,10 @@ function Trillconfiger(vnode) {
         m("div", {style:{position:"absolute",right:"0.7em",top:"0.3em",color:"#d5a"}}, "...Power")
         ,
         m("input",
-        { oninput: m.withAttr("value", v=>{trillpow=v}),value: trillpow }
+        { oninput: m.withAttr("value", v=>{trillpow=v}),
+          onblur: m.withAttr("value", v=>{trillpow=v; submit()}),
+          value: trillpow 
+        }
         )
         ]
         
@@ -212,7 +220,22 @@ function Trillconfiger(vnode) {
         ,
         m("input",
         {
-          oninput: m.withAttr("value", v=>{trilltime=v}),value: trilltime
+          oninput: m.withAttr("value", v=>{trilltime=v}),
+          onblur: m.withAttr("value", v=>{trilltime=v ; submit()}), //submit also
+          value: trilltime
+        }
+        )
+        ]
+        )
+        ,
+        m("label", {style:{position:"relative"}} ,
+        [
+        m("div", {style:{position:"absolute",right:"0.7em",top:"0.3em",color:"#d5a"}}, "...Bloop")
+        ,
+        m("input",
+        {
+          oninput: m.withAttr("value", v=>{bloop=v.substr(v.length - 1) ; playrnd(bloop)}),
+          value: bloop
         }
         )
         ]
