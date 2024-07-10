@@ -1,15 +1,16 @@
 
 var audioctx
 
-function getaudio(){
-  var audioctx=audioctx||(new (window.AudioContext || window.webkitAudioContext)())
+function getaudioctx(){
+  audioctx=audioctx||(new (window.AudioContext || window.webkitAudioContext)())
   return audioctx
 }
 
-function makebuffer(ctx,pcm0,pcm1){
+function makectxbuffer(pcm0,pcm1){
   
   var chans=pcm1?2:1
   var frams=pcm0.length
+  var ctx=getaudioctx()
   var abuf = ctx.createBuffer(chans, frams, ctx.sampleRate);
 
   var bfchan= abuf.getChannelData(0) 
@@ -19,7 +20,7 @@ function makebuffer(ctx,pcm0,pcm1){
   for( var i=0;i<frams;i++){ 
     bfchan[i] = pcm0[i]
   }
-  
+  console.log(pcm0[0],pcm0[1],pcm0[2],pcm0[3],pcm0[4])
   //~ var bfchan1= abuf.getChannelData(1) 
   
   //~ for( var i=0;i<frams;i++){ 
@@ -31,13 +32,11 @@ function makebuffer(ctx,pcm0,pcm1){
   return abuf
 }
 
-
-function playbuffer(ctx,buf){
+function playbuffer(buf){
   
   // console.log("buf",buf)
-  
-  var source = ctx.createBufferSource()
-  // set the buffer in the AudioBufferSourceNode
+  var ctx=getaudioctx()
+  var source = ctx.createBufferSource() // set the buffer in the AudioBufferSourceNode
   source.buffer = buf
   // console.log('source',source)
   // connect the AudioBufferSourceNode to the
@@ -47,13 +46,104 @@ function playbuffer(ctx,buf){
   source.start()
 }
 
-
-function slinku(c){ //sine like transition through unit interval ,/'
-  if((c-=0.5)<0){ return 0.5+ c*(1+c)*2 }
-  return 0.5+ c*(1-c)*2
+function playrnd(bloop){
+  var fdr=Fdrandom.repot(bloop)
+  key = Math.floor(fdr.gteat(0,EQspec.nfreq-0.01))
+  let tf= (fdr.gskew()+0.5)*fdr.range(0.1,9.5)
+  let tp= fdr.gnorm(0.001,1.2) ; tp=tp*tp+0.0002
+  let tt= (fdr.gskew()+0.55)*8
+  playztone(key,tf,tp,tt)
 }
 
+function playztone(key,tf,tp,tt){
+  console.log("playang key",key,"frq",frqs[key],"pwr",pwrs[key],tf,tp,tt)
+  
+  tf = (tf===undefined)? EQspec.trillfreq : tf
+  tp = (tp===undefined)? EQspec.trillpow : tp
+  tt = (tt===undefined)? EQspec.trilltime : tt
+  playonetrill(frqs[key],volboost*pwrs[key]/100, tf , tp , tt)
+  
+  var ccl=arch.bells[key].classList
+  if(ccl.contains("pulse")){
+    ccl.remove("pulse")
+    ccl.add("pulse2")
+  }else{
+    ccl.remove("pulse2")
+    ccl.add("pulse")
+  }
+}
+
+var loudeq = [ //equal loudness curve ISO 226:2003
+  {v:   0, pw:90  }, {v:  20, pw:90  }, {v:  35, pw:76  },
+  {v:  50, pw:65  }, {v:  75, pw:54  }, {v: 100, pw:47  }, {v: 185, pw:36  },
+  {v: 316, pw:28  }, {v: 533, pw:24  }, {v: 794, pw:21  }, {v:1000, pw:19.8 },
+  {v:1120, pw:20.5}, {v:1310, pw:22.9}, {v:1410, pw:23.3},
+  {v:1520, pw:23.0}, {v:1630, pw:22.0}, {v:1830, pw:20  }, {v:2510, pw:16  },
+  {v:3160, pw:15  }, {v:4000, pw:16  }, {v:5000, pw:20  },
+  {v:7950, pw:30  }, {v:10000,pw:35  }, {v:12500,pw:36  },
+  {v:50000,pw:36  }
+]
+
+var bv_loudeq=0
+ 
+function loudness(cfrq){
+  
+  var j=loudeq.length-1
+  var bst =-0
+  
+  if(cfrq>=loudeq[j].v) {
+    bst = loudeq[j].pw 
+  } else if (cfrq<=loudeq[0].v) {
+    bst = loudeq[ 0 ].pw
+  } else {
+  
+    if(!(loudeq[bv_loudeq].v<=cfrq&&loudeq[bv_loudeq+1].v>cfrq)){
+      while(j!==-1 && cfrq<= loudeq[j].v) j--
+      bv_loudeq=j
+    } 
+    bst = interpo(loudeq,bv_loudeq,cfrq)
+  }
+    
+  return Math.pow(3.16227766,bst/10) 
+}
+
+//console.log(enve(0.99))
+
+var bv_env = 0;
+var envelope=[ //asr curv, v is time
+  {v:0.0,  pw:0.0  }, 
+  {v:0.02, pw:0.2  }, //attack
+  {v:0.10, pw:0.85 }, 
+  {v:0.45, pw:1.0  }, 
+  {v:0.70, pw:0.75 }, 
+  {v:0.85, pw:0.2  }, 
+  {v:1.0,  pw:0.0  },
+  {v:2.0,  pw:0.0  } 
+] 
+
+function enve(c){
+  
+  if (!(c>=envelope[bv_env].v && c<envelope[bv_env+1].v)){
+    var j=envelope.length-2
+    while(j!==-1 && c< envelope[j].v){ j-- } 
+    if(j==-1) return envelope[0].v
+    bv_env=j
+  }
+    
+  return interpo(envelope,bv_env,c)
+}
+
+function interpo(envelope,j,cf){
+    
+  var fa=envelope[j].v, pa=envelope[j].pw
+  var fb=envelope[j+1].v, pb=envelope[j+1].pw
+  
+  return lerp( pa,pb, (cf-fa)/(fb-fa) ) 
+}
+
+
 function lerp(c, d, u ) { return  c-(c-d)*u } //c slides to d on u
+
 function slerp(c, d, u ) { return  c-(c-d)*slinku(u) } //smoothed lerp
 function zlerp(c, d, u ) { //c to d on u, more in 0.2>0.8
   var g=c
@@ -61,6 +151,115 @@ function zlerp(c, d, u ) { //c to d on u, more in 0.2>0.8
   else if(u>0.2){ g = c- (c-d)*(u-0.2)*1.6666666666667 } //5/3
   return ( ( c-(c-d)*u)+g )*0.5
 }
+function slinku(c){ //sine like transition through unit interval ,/'
+  if((c-=0.5)<0){ return 0.5+ c*(1+c)*2 }
+  return 0.5+ c*(1-c)*2
+}
+
+function makepcmtone(freq,sams,ampl,rate,Ao){
+  
+  if(!(Ao&&Ao.length===sams)){ Ao=new Array(sams) }
+  
+  var m=Math.PI*freq/rate
+  
+  for(var i=0;i<sams;i++){ Math.cos(i*m)*ampl }
+  
+  return Ao
+}
+
+
+function makepcmtrill( {frqlw,frqhi,trlfq,secs,ampl,rate,Ao} ){
+  
+  var sams=(secs*rate)>>0
+  
+  if(!(Ao&&Ao.length===sams)){ Ao=new Array(sams) }
+  
+  var wvla=rate/(frqlw)  // 
+  var wvlb=rate/(frqhi)  // 
+  
+  var wvlx=rate/(trlfq)
+  
+  var wvld=wvlb-wvla
+  
+  var pi=2*Math.PI
+  var thet=0,phi=Math.PI/6
+  console.log( "freq" , rate/wvlb ,"boost", loudness(rate/wvlb), "ampl" ,ampl )
+  for(var i=0; i<sams; i++){
+    
+    var tx=Math.sin( (phi+=pi/wvlx) )
+    tx=tx*tx*tx*Math.sqrt(Math.abs(tx))
+    //~ tx=nsqrt(nsqrt(tx))
+    var wvlc = wvla+(wvld*(1+tx)/2 )
+    
+    thet+=pi/wvlc
+    
+    // audio needs to be in [-1.0; 1.0]
+    var cp=Math.sin(thet) * ampl * loudness(rate/wvlc)* enve(i/sams)
+        
+    Ao[i] = cp
+  
+  }
+  
+  var jj=0,jn=0
+  for(i=0;i<Ao.length;i++){ 
+    if(Ao[i]>jj){ jj=Ao[i] }
+    if(Ao[i]<jn){ jn=Ao[i] }
+    }
+  console.log("max amp:",jj,jn)
+  
+  limiter(Ao,0.9,1)
+
+  var jj=0,jn=0
+  for(i=0;i<Ao.length;i++){ 
+    if(Ao[i]>jj){ jj=Ao[i] }
+    if(Ao[i]<jn){ jn=Ao[i] }
+    }
+  console.log("max amp:",jj,jn)
+
+  //console.log("wvla",wvla,"pwr",loudness(wvla/rate))
+  // conlog("Ao len",Ao.length,Ao)
+  return Ao
+}
+
+function limiter(A,d,e){
+  
+  var dd=d*d,ed2=e-d*2
+  for(var i=0;i<A.length;i++){ 
+    var si= A[i]<0 ? -1:1
+    var c=A[i]*si 
+  
+    if(c>d){ 
+      c = (e*c-dd) / (c+ed2) * si  // soft
+      A[i] = c>1 ? si : c*si       // hard
+    }
+    
+  }
+  return A
+}
+
+
+var trillbuffer=[]
+
+function playonetrill(freq, pow, trillfreq , trillpow , trilltime){
+  
+  //var frqlw,frqhi,trlfq,secs,ampl,rate
+
+  playbuffer( 
+    makectxbuffer(
+  
+      makepcmtrill( {
+      frqlw: freq/(1+trillpow)
+     ,frqhi: freq*(1+trillpow)
+     ,trlfq: trillfreq 
+     ,secs : trilltime 
+     ,ampl : pow
+     ,rate : 48000
+     ,Ao : trillbuffer
+    } )
+  
+  ) )
+}
+
 
 /*
 
@@ -92,184 +291,14 @@ peak 23.5
 1        10000: 35
 1.1      12500: 36
 
-*/
-
-
-var prev_power=0
-
-var elc = [ //equal loudness curve ISO 226:2003
-  {hz:   0, vd:90  }, {hz:  20, vd:90  }, {hz:  35, vd:76  },
-  {hz:  50, vd:65  }, {hz:  75, vd:54  }, {hz: 100, vd:47  }, {hz: 185, vd:36  },
-  {hz: 316, vd:28  }, {hz: 533, vd:24  }, {hz: 794, vd:21  }, {hz:1000, vd:19.8 },
-  {hz:1120, vd:20.5}, {hz:1310, vd:22.9}, {hz:1410, vd:23.3},
-  {hz:1520, vd:23.0}, {hz:1630, vd:22.0}, {hz:1830, vd:20  }, {hz:2510, vd:16  },
-  {hz:3160, vd:15  }, {hz:4000, vd:16  }, {hz:5000, vd:20  },
-  {hz:7950, vd:30  }, {hz:10000,vd:35  }, {hz:12500,vd:36  },
-  {hz:50000,vd:36  }
-]
- 
-function doelc(){
-  for(var i=0;i<elc.length;i++){
-    var c=elc[i].vd
-    c=Math.pow(2,c/10)/150
-    //~ console.log(elc[i].vd,c)
-    elc[i].vd=c	
-  }
-}
-
-var b_key_frq=0
-
-var ampfbase = Math.sqrt(10) //3.162277660 amplitude_factor_base
-function dbtoampfac(x){ return Math.pow(3.16227766,x/10) }
-
-function pwrboost(cf){
-  
-  var j=elc.length-1
-  var bst =-0
-  
-  if(cf>=elc[j].hz) {
-    bst = elc[j].vd 
-  } else {
-  
-    if(elc[b_key_frq].hz<=cf&&elc[b_key_frq+1].hz>cf){
-      bst = interpo(elc,b_key_frq,cf)
-    } else {
-
-      while(j!==-1 && cf< elc[j].hz){ j-- } 
-     
-      if(j==-1){ 
-        bst = elc[ b_key_frq=0 ].vd 
-      } else {
-        bst = interpo(elc, b_key_frq=j ,cf)
-      }	
-      
-    }
-  }
-    
-  return Math.pow(3.16227766,bst/10) 
-}
-
-//console.log(pwrform(0.99))
-
-var b_crv = 0;
-function pwrform(c){
-  
-  var crv=[ //adsr curv, hz is time not hz
-    {hz:0.0,  vd:0.0  }, 
-    {hz:0.02, vd:0.2  }, 
-    {hz:0.10, vd:0.85 }, 
-    {hz:0.50, vd:1.0  }, 
-    {hz:0.75, vd:0.75 }, 
-    {hz:0.90, vd:0.2  }, 
-    {hz:1.0,  vd:0.0  },
-    {hz:2.0,  vd:0.0  } 
-  ] 
-
-  if (c<=crv[b_crv].hz&&c>crv[b_crv+1]){
-    return interpo(crv,b_crv,c)
-  }
-  var j=crv.length-2
-   
-  while(j!==-1 && c< crv[j].hz){ j-- } 
-  
-  if(j==-1) return crv[0].hz
-    
-  return interpo(crv,b_crv=j,c)
-}
-
-
-function interpo(crv,j,cf){
-    
-  var fa=crv[j].hz, pa=crv[j].vd
-  var fb=crv[j+1].hz, pb=crv[j+1].vd
-  
-  return lerp( pa,pb, (cf-fa)/(fb-fa) ) 
-}
-
-
-
-
-
-function makepcmtone(freq,sams,ampl,rate,Ao){
-  
-  if(!(Ao&&Ao.length===sams)){ Ao=new Array(sams) }
-  
-  var m=Math.PI*freq/rate
-  
-  for(var i=0;i<sams;i++){ Math.cos(i*m)*ampl }
-  
-  return Ao
-}
-
-function nsqrt(c){
-  if (c>0) return Math.sqrt(c)
-  return -Math.sqrt(Math.abs(c))
-}
-
-function makepcmtrill( {freqa,freqb,freqx,secs,ampl,rate,Ao} ){
-  
-  var sams=(secs*rate)>>0
-  
-  if(!(Ao&&Ao.length===sams)){ Ao=new Array(sams) }
-  
-  var wvla=rate/(freqa)  // 
-  var wvlb=rate/(freqb)  // 
-  
-  var wvlx=rate/(freqx)
-  
-  var wvld=wvlb-wvla
-  
-  var pi=2*Math.PI
-  var thet=0,phi=Math.PI/6
-  console.log( "freq" , rate/wvlb ,"boost", pwrboost(rate/wvlb), "ampl" ,ampl )
-  for(var i=0; i<sams; i++){
-    
-    var tx=Math.sin( (phi+=pi/wvlx) )
-    tx=tx*tx*tx*Math.sqrt(Math.abs(tx))
-    //~ tx=nsqrt(nsqrt(tx))
-    var wvlc = wvla+(wvld*(1+tx)/2 )
-    
-    thet+=pi/wvlc
-    
-    // audio needs to be in [-1.0; 1.0]
-    var cp=Math.sin(thet) * ampl * pwrboost(rate/wvlc)* pwrform(i/sams)
-    
-    //~ if(cp*cp>1){ cp=cp/Math.abs(cp)} //clip ?
-    
-    Ao[i] = cp
-  
-  }
-  
-  var jj=0,jn=0
-  for(i=0;i<Ao.length;i++){ 
-    if(Ao[i]>jj){ jj=Ao[i] }
-    if(Ao[i]<jn){ jn=Ao[i] }
-    }
-  console.log("max amp:",jj,jn)
-  
-  //~ softlimitar(Ao,0.3,3)
-  //~ softlimitar(Ao,0.5,2)
-  softlimitar(Ao,0.9,1)
-  //~ hardlimitar(Ao,1) 
-  
-  var jj=0,jn=0
-  for(i=0;i<Ao.length;i++){ 
-    if(Ao[i]>jj){ jj=Ao[i] }
-    if(Ao[i]<jn){ jn=Ao[i] }
-    }
-  console.log("max amp:",jj,jn)
-
-  //console.log("wvla",wvla,"pwr",pwrboost(wvla/rate))
-  // conlog("Ao len",Ao.length,Ao)
-  return Ao
-}
+function nsqrt(c){ return c<0 ? -Math.sqrt(-c) : Math.sqrt(c) }
 
 // v= 2-1/v                    // rng 1 to 2 
 // v= (2*v-0.5)/(2*v)          // rng 1/2 to 1
 // v= 4/5 + (v -4/5)/(5*v -3)  // rng 4/5 to 1
 // v= 14/15 +(v-14/15)/(15v-13) // rng 14/15 to 1
 // v= 14/15 +(v-14/15)/(15v-13) // rng 14/15 to 1
-/*
+
 function softlimit(v,st,mx,le){
   
   st: 14/15 mx: 1
@@ -279,8 +308,7 @@ function softlimit(v,st,mx,le){
 
   v= v + sh/(ov+1)  -sh
 }
-*/
-                      
+
 function softlimit(v,d,e){
   if(Math.abs(v)<d) return v 
   var si=v<0 ? -1:1 ; v*=si
@@ -289,21 +317,7 @@ function softlimit(v,d,e){
   return v*si
 }
 
-function softlimitar(A,d,e){
-  
-  var dd=d*d,ed2=e-d*2
-  for(var i=0;i<A.length;i++){ 
-    var si= A[i]<0 ? -1:1
-    var c=A[i]*si 
-  
-    if(c>d){ 
-      A[i]= (e*c-dd) / (c+ed2) * si 
-    }
-  }
-  return A
-}
-
-function hardlimitar(A,mx){
+function hardlimit(A,mx){
   for(i=0;i<A.length;i++) if(Math.abs(A[i])>mx){
     if(A[i]>0) A[i]=mx 
     else A[i]=-mx
@@ -311,32 +325,25 @@ function hardlimitar(A,mx){
   return A
 }
 
-if(false){ //soft limit werk
+if(false){ //soft limit test
 z=[]
 for(var i=0;i<30;i++){
   console.log((i/6).toFixed(6),softlimit(i/6,0.8,1.00).toFixed(6))
   z.push(i/6)
 }
-console.log(softlimitar(z,0.8,1))
+console.log(limiter(z,0.8,1))
 }
 
-var trillbuffer=[]
-
-function playonetrill(freq, pow, trillfreq , trillpow , trilltime){
-  
-  var freqa,freqb,freqx,secs,ampl,rate
-
-  var pcm = makepcmtrill( {
-    freqa: freq/(1+trillpow)  //0.9
-   ,freqb: freq*(1+trillpow)  //1.11
-   ,freqx: trillfreq //7.5
-   ,secs : trilltime //1.1
-   ,ampl : pow
-   ,rate : 48000
-   ,Ao : trillbuffer
-  } )
-  
-  var ctx = getaudio()
-  var buf = makebuffer(ctx,pcm)
-  playbuffer(ctx,buf)
+function elc_convert_logpow(){ //this may have been used already to convert
+  for(var i=0;i<loudeq.length;i++){ //
+    var c=loudeq[i].pw
+    c=Math.pow(2,c/10)/150
+    //~ console.log(loudeq[i].pw,c)
+    loudeq[i].pw=c	
+  }
 }
+
+var ampfbase = Math.sqrt(10) 
+function dbtoampfac(x){ return Math.pow(3.16227766,x/10) }
+
+*/

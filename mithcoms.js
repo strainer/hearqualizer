@@ -337,20 +337,20 @@ return m("div",m("form",{onsubmit:submit},
       
       //row of bells
       m("tr"
-      ,makarr(nb, function(ti){ 
+      ,marray(nb, function(ti){ 
         
         return m("td", 
           { className: "frqbell",style:"padding:0em; margin:auto; text-align:center;"},
           m( bellbutton, {ky:ti} )
          )//m
         },this
-       )//makarr 
+       )//marray 
       ),
 
       //row of sliders 
       m("tr",
             
-        makarr(nb, function(i){ //makarr - make array of len
+        marray(nb, function(i){ //marray - make array of len
           var adef = JSON.parse(JSON.stringify(slider_def))
           adef.stateobj=ceqmdl.pwrs
           adef.statekey=i //hacky clone as defs are not read in order
@@ -363,7 +363,7 @@ return m("div",m("form",{onsubmit:submit},
       /*   //row of frequency adjust
       m("tr",
             
-        makarr(nb, function(i){ //makarr - make array of len
+        marray(nb, function(i){ //marray - make array of len
           afqput.statekey=i
           return m("td", {className: "frqinput"},
                    m( minput, slider_def )
