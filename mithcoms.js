@@ -1,3 +1,8 @@
+h={  //arch
+  bells:[]
+}
+Eqspec=[]
+
 function Eqconfiger(vnode) {
 
   var EQspec=vnode.attrs.mdl
@@ -24,7 +29,7 @@ function Eqconfiger(vnode) {
 
     d = cbands
     while(d.length && (!isFinite(d.substr(-1))) ) d=d.slice(0,-1)
-    d=Math.floor(d);d=d<1?1:d>35?35:d
+    d=Math.floor(d);d=d<2?2:d>99?99:d
     if(isFinite(d)){ EQspec.nfreq = d }
     cbands=bntostr(EQspec.nfreq)
     setglobs()
@@ -248,7 +253,7 @@ function Trillconfiger(vnode) {
 
 function bellbutton(vnode){
   
-  var frqs = vnode.attrs.frqs
+  //var frqs = vnode.attrs.EQspec.frqs
   var ky=vnode.attrs.ky
   
   function onclick(event){
@@ -257,7 +262,7 @@ function bellbutton(vnode){
   }
   
   return{
-    oncreate:(vnode) =>{ arch.bells[ky]=vnode.dom }
+    oncreate:(vnode) =>{ h.bells[ky]=vnode.dom }
    ,view: function(vnode) {
       return m("svg[viewBox='0 0 133 133']", 
       { onclick:onclick,
@@ -285,8 +290,8 @@ function mc_eqlzr(vnode) { //attrs ceqmdl
   var nb =pwrs.length
   
   var slider_def ={ 
-    stateobj:ceqmdl.pwrs 
-   ,frqs:ceqmdl.frqs
+    stateobj: pwrs 
+   ,frqs: frqs
    ,statekey:0
    ,onclickextra:playztone 
    ,min:cmin ,max:cmax ,steps:40
@@ -352,7 +357,7 @@ return m("div",m("form",{onsubmit:submit},
             
         marray(nb, function(i){ //marray - make array of len
           var adef = JSON.parse(JSON.stringify(slider_def))
-          adef.stateobj=ceqmdl.pwrs
+          adef.stateobj=pwrs
           adef.statekey=i //hacky clone as defs are not read in order
           adef.onclickextra=playztone
           return m("td", {className: "frqcntrl",style:"margin:auto; text-align:center"},

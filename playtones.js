@@ -47,23 +47,27 @@ function playbuffer(buf){
 }
 
 function playrnd(bloop){
+  if (bloop=="'") bloop="^";
+  if (bloop=="d") bloop="&";
+  if (bloop=="5") bloop="%";
+  
   var fdr=Fdrandom.repot(bloop)
   key = Math.floor(fdr.gteat(0,EQspec.nfreq-0.01))
-  let tf= (fdr.gskew()+0.5)*fdr.range(0.1,9.5)
+  let tf= (fdr.gskew()+0.4)*fdr.range(0.1,11.5)
   let tp= fdr.gnorm(0.001,1.2) ; tp=tp*tp+0.0002
   let tt= (fdr.gskew()+0.55)*8
   playztone(key,tf,tp,tt)
 }
 
 function playztone(key,tf,tp,tt){
-  console.log("playang key",key,"frq",frqs[key],"pwr",pwrs[key],tf,tp,tt)
+  console.log("playang key",key,"frq",EQspec.frqs[key],"pwr",EQspec.pwrs[key],tf,tp,tt)
   
   tf = (tf===undefined)? EQspec.trillfreq : tf
   tp = (tp===undefined)? EQspec.trillpow : tp
   tt = (tt===undefined)? EQspec.trilltime : tt
-  playonetrill(frqs[key],volboost*pwrs[key]/100, tf , tp , tt)
+  playonetrill(EQspec.frqs[key],volboost*EQspec.pwrs[key]/100, tf , tp , tt)
   
-  var ccl=arch.bells[key].classList
+  var ccl=h.bells[key].classList
   if(ccl.contains("pulse")){
     ccl.remove("pulse")
     ccl.add("pulse2")
@@ -73,7 +77,7 @@ function playztone(key,tf,tp,tt){
   }
 }
 
-var loudeq = [ //equal loudness curve ISO 226:2003
+var loudeq = [ //equal adj_crv curve ISO 226:2003
   {v:   0, pw:90  }, {v:  20, pw:90  }, {v:  35, pw:76  },
   {v:  50, pw:65  }, {v:  75, pw:54  }, {v: 100, pw:47  }, {v: 185, pw:36  },
   {v: 316, pw:28  }, {v: 533, pw:24  }, {v: 794, pw:21  }, {v:1000, pw:19.8 },
@@ -84,9 +88,9 @@ var loudeq = [ //equal loudness curve ISO 226:2003
   {v:50000,pw:36  }
 ]
 
-var bv_loudeq=0
+var bv_crv=0
  
-function loudness(cfrq){
+function adj_crv(cfrq){
   
   var j=loudeq.length-1
   var bst =-0
@@ -97,14 +101,44 @@ function loudness(cfrq){
     bst = loudeq[ 0 ].pw
   } else {
   
-    if(!(loudeq[bv_loudeq].v<=cfrq&&loudeq[bv_loudeq+1].v>cfrq)){
+    if(!(loudeq[bv_crv].v<=cfrq&&loudeq[bv_crv+1].v>cfrq)){
       while(j!==-1 && cfrq<= loudeq[j].v) j--
-      bv_loudeq=j
+      bv_crv=j
     } 
-    bst = interpo(loudeq,bv_loudeq,cfrq)
+    bst = interpo(loudeq,bv_crv,cfrq)
   }
     
   return Math.pow(3.16227766,bst/10) 
+}
+
+var bv_eq=0
+ 
+function adj_eq(cfrq){
+  
+  var j=EQspec.pwrs.length-1 ; if (j<1) return 0.80 
+  var bst =-0
+
+  if(cfrq>=EQspec.frqs[j]) {
+    bst = EQspec.pwrs[j] 
+  } else if (cfrq<=EQspec.frqs[0]) {
+    bst = EQspec.pwrs[0]
+  } else {
+  
+    if(!(EQspec.frqs[bv_eq]<=cfrq&&EQspec.frqs[bv_eq+1].v>cfrq)){
+      while(j!==-1 && cfrq<= EQspec.frqs[j]) j--
+      bv_eq=j
+    } 
+    
+    bst = zlerp( 
+      EQspec.pwrs[bv_eq]
+     ,EQspec.pwrs[bv_eq+1]
+     ,(cfrq-EQspec.frqs[bv_eq])/(EQspec.frqs[bv_eq+1]-EQspec.frqs[bv_eq]) 
+    )
+
+  }
+    
+//return Math.pow(3.16227766,bst/10) 
+  return bst/100 
 }
 
 //console.log(enve(0.99))
@@ -183,7 +217,7 @@ function makepcmtrill( {frqlw,frqhi,trlfq,secs,ampl,rate,Ao} ){
   
   var pi=2*Math.PI
   var thet=0,phi=Math.PI/6
-  console.log( "freq" , rate/wvlb ,"boost", loudness(rate/wvlb), "ampl" ,ampl )
+  console.log( "freq" , rate/wvlb ,"boost", adj_crv(rate/wvlb), "ampl" ,ampl )
   for(var i=0; i<sams; i++){
     
     var tx=Math.sin( (phi+=pi/wvlx) )
@@ -194,10 +228,10 @@ function makepcmtrill( {frqlw,frqhi,trlfq,secs,ampl,rate,Ao} ){
     thet+=pi/wvlc
     
     // audio needs to be in [-1.0; 1.0]
-    var cp=Math.sin(thet) * ampl * loudness(rate/wvlc)* enve(i/sams)
+    var cp=Math.sin(thet) *volboost* adj_eq(rate/wvlc) * adj_crv(rate/wvlc) * enve(i/sams)
         
     Ao[i] = cp
-  
+ 
   }
   
   var jj=0,jn=0
@@ -207,7 +241,7 @@ function makepcmtrill( {frqlw,frqhi,trlfq,secs,ampl,rate,Ao} ){
     }
   console.log("max amp:",jj,jn)
   
-  limiter(Ao,0.9,1)
+  limiter(Ao,0.88,1)
 
   var jj=0,jn=0
   for(i=0;i<Ao.length;i++){ 
@@ -216,7 +250,7 @@ function makepcmtrill( {frqlw,frqhi,trlfq,secs,ampl,rate,Ao} ){
     }
   console.log("max amp:",jj,jn)
 
-  //console.log("wvla",wvla,"pwr",loudness(wvla/rate))
+  //console.log("wvla",wvla,"pwr",adj_crv(wvla/rate))
   // conlog("Ao len",Ao.length,Ao)
   return Ao
 }
@@ -229,12 +263,11 @@ function limiter(A,d,e){
     var c=A[i]*si 
   
     if(c>d){ 
-      c = (e*c-dd) / (c+ed2) * si  // soft
-      A[i] = c>1 ? si : c*si       // hard
+      c = (e*c-dd) / (c+ed2)
+      if(c>1) c=0.99
     }
-    
-  }
-  return A
+    A[i]=c*si
+  } 
 }
 
 
@@ -263,7 +296,7 @@ function playonetrill(freq, pow, trillfreq , trillpow , trilltime){
 
 /*
 
-measurements of equal loudness 
+measurements of equal adj_crv 
 
 20: 90     20 : 90
 50 :65     50 : 65

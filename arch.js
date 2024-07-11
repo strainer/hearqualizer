@@ -1,6 +1,3 @@
-arch={
-  bells:[]
-}
 
 //helper in mithcomponents
 function marray(n,f,th){
@@ -13,8 +10,6 @@ var EQspec
 
 function setglobs(){
   EQspec=new_eqdat(EQspec)
-  frqs = EQspec.frqs
-  pwrs = EQspec.pwrs
 }
 
 function new_eqdat(p,r){
@@ -36,8 +31,9 @@ function new_eqdat(p,r){
   for(var i=0;i<len;i++){
     var cf = islinear ? afreq + i*linstep 
                      : Math.pow(Math.E, afl + logstep*i )
+                     
     frq[i]=Math.round(cf)
-    pwr[i]=90
+    pwr[i]=(adj_eq(frq[i])*100) || 80
   }
   
   //~ if(old) //feed old data in
@@ -76,7 +72,7 @@ function fixEQ(){
 }
 
 var stowed=false
-var storekey="hearqualizer_config"
+var storekey="hearqualizer_config2"
 
 //save da config
 window.onbeforeunload = function (e) {
@@ -105,10 +101,9 @@ function readstored_eqconf(){
   }
 }
 
-fixEQ( readstored_eqconf() ) 
+EQspec=readstored_eqconf()
 
-frqs = EQspec.frqs
-pwrs = EQspec.pwrs
+fixEQ( EQspec ) 
 
 var cmin=0,cmax=100,volboost=0.01
 var slength="2.75em",swide="16em"
