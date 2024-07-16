@@ -6,7 +6,7 @@ function marray(n,f,th){
   return A
 }
 
-var EQspec
+EQspec=[]
 
 function setglobs(){
   EQspec=new_eqdat(EQspec)

@@ -264,7 +264,7 @@ function limiter(A,d,e){
   
     if(c>d){ 
       c = (e*c-dd) / (c+ed2)
-      if(c>1) c=0.99
+      if(c>1) c=1
     }
     A[i]=c*si
   } 
