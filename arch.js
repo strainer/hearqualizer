@@ -28,6 +28,9 @@ function new_eqdat(p,r){
   var linstep = (efreq-afreq)/(len-1)
   var logstep = (efl-afl)/(len-1)
     
+  EQspec.pwrs=EQspec.pwrs||[]
+  EQspec.frqs=EQspec.frqs||[]
+  
   for(var i=0;i<len;i++){
     var cf = islinear ? afreq + i*linstep 
                      : Math.pow(Math.E, afl + logstep*i )
