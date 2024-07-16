@@ -56,16 +56,18 @@ function new_eqdat(p,r){
 
 function fixEQ(){
   
-  if(!EQspec){
+  if(EQspec==undefined){
     EQspec = new_eqdat({
       afreq:128
      ,efreq:11585
      ,nfreq:14
      ,linear:false
+     ,pwrs:[]
+     ,frqs:[]
     },{} )
   }
   
-  if(!EQspec.trilltime){
+  if(EQspec.trilltime==undefined){
     EQspec.trillfreq=7.5;
     EQspec.trillpow=0.1;
     EQspec.trilltime=1;
