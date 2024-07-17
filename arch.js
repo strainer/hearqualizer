@@ -6,14 +6,15 @@ function marray(n,f,th){
   return A
 }
 
-EQspec=[]
+var EQspec=[]
 
 function setglobs(){
   EQspec=new_eqdat(EQspec)
+  passEQspec(EQspec)
 }
 
 function new_eqdat(p,r){
-  
+  passEQspec(p)
   var len=p.nfreq       //number frequencies
 
   var frq=new Array(len)
@@ -28,15 +29,16 @@ function new_eqdat(p,r){
   var linstep = (efreq-afreq)/(len-1)
   var logstep = (efl-afl)/(len-1)
     
-  if (EQspec.pwrs==undefined) EQspec.pwrs=[];
-  if (EQspec.frqs==undefined) EQspec.frqs=[];
-  
   for(var i=0;i<len;i++){
     var cf = islinear ? afreq + i*linstep 
                      : Math.pow(Math.E, afl + logstep*i )
                      
     frq[i]=Math.round(cf)
-    pwr[i]=(adj_eq(frq[i])*100) || 80
+    if(EQspec) {
+      pwr[i]=(adj_eq(frq[i])*100)
+    } else {
+      pwr[i]=80
+    }
   }
   
   //~ if(old) //feed old data in

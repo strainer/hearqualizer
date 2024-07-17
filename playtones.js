@@ -1,5 +1,7 @@
 
-var audioctx
+var audioctx, EQspec
+
+function passEQspec(q) { EQspec=q }
 
 function getaudioctx(){
   audioctx=audioctx||(new (window.AudioContext || window.webkitAudioContext)())
